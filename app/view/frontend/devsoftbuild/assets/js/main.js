@@ -34,12 +34,11 @@ document.addEventListener('DOMContentLoaded', function() {
         lastScroll = currentScroll;
     });
     
-    // Counter Animation para estadísticas
     const statNumbers = document.querySelectorAll('.stat-number');
     
     const animateCounter = (element) => {
         const target = parseInt(element.getAttribute('data-target'));
-        const duration = 2000; // 2 segundos
+        const duration = 2000; 
         const increment = target / (duration / 16); // 60fps
         let current = 0;
         
