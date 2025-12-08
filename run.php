@@ -170,3 +170,4 @@ if (isset($routes[$page])) {
     include TEMPLATE_PATH . '/includes/layout.php';
 }
 
+

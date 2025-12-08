@@ -40,7 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_proyecto_file
         $filepath = $upload_dir . $filename;
         
         if (move_uploaded_file($file['tmp_name'], $filepath)) {
-            $_POST['imagen_proyecto'] = URL_SERV . '/app/public_root/uploads/proyectos/' . $filename;
+            // URL accesible desde el navegador
+            $image_url = URL_SERV . '/app/public_root/uploads/proyectos/' . $filename;
+            $_POST['imagen_principal_proyecto'] = $image_url;
+            $_POST['imagen_proyecto'] = $image_url; // Compatibilidad
             $imagen_subida = true;
         } else {
             $message = 'Error al subir la imagen';
@@ -54,11 +57,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_proyecto_file
 
 // Si no se subió imagen pero hay URL, usar la URL
 if (!$imagen_subida && !empty($_POST['imagen_proyecto']) && filter_var($_POST['imagen_proyecto'], FILTER_VALIDATE_URL)) {
-    // La URL ya está en $_POST['imagen_proyecto'], no hacer nada
-} elseif (!$imagen_subida && empty($_POST['imagen_proyecto'])) {
+    // Mapear imagen_proyecto a imagen_principal_proyecto
+    $_POST['imagen_principal_proyecto'] = $_POST['imagen_proyecto'];
+} elseif (!$imagen_subida && !empty($_POST['imagen_principal_proyecto']) && filter_var($_POST['imagen_principal_proyecto'], FILTER_VALIDATE_URL)) {
+    // La URL ya está en $_POST['imagen_principal_proyecto'], no hacer nada
+} elseif (!$imagen_subida && empty($_POST['imagen_principal_proyecto']) && empty($_POST['imagen_proyecto'])) {
     // Si estamos editando y no se subió nueva imagen ni hay URL, mantener la existente
-    if (isset($proyecto) && !empty($proyecto['imagen_proyecto'])) {
-        $_POST['imagen_proyecto'] = $proyecto['imagen_proyecto'];
+    if (isset($proyecto) && !empty($proyecto['imagen_principal_proyecto'])) {
+        $_POST['imagen_principal_proyecto'] = $proyecto['imagen_principal_proyecto'];
+    } elseif (isset($proyecto) && !empty($proyecto['imagen_proyecto'])) {
+        $_POST['imagen_principal_proyecto'] = $proyecto['imagen_proyecto'];
     }
 }
 
@@ -80,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'slug_proyecto' => $_POST['slug_proyecto'] ?? '',
             'descripcion_corta_proyecto' => $_POST['descripcion_corta_proyecto'] ?? '',
             'descripcion_larga_proyecto' => $_POST['descripcion_larga_proyecto'] ?? '',
-            'imagen_proyecto' => $_POST['imagen_proyecto'] ?? '',
+            'imagen_principal_proyecto' => $_POST['imagen_principal_proyecto'] ?? $_POST['imagen_proyecto'] ?? '',
             'tipo_proyecto' => $_POST['tipo_proyecto'] ?? '',
             'cliente_proyecto' => $_POST['cliente_proyecto'] ?? '',
             'fecha_inicio_proyecto' => !empty($_POST['fecha_inicio_proyecto']) ? $_POST['fecha_inicio_proyecto'] : null,
@@ -93,6 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'meta_descripcion_proyecto' => $_POST['meta_descripcion_proyecto'] ?? '',
             'meta_keywords_proyecto' => $_POST['meta_keywords_proyecto'] ?? '',
         ];
+        
+        // Debug temporal
+        if (DEBUG_MODE && !empty($data['imagen_principal_proyecto'])) {
+            error_log("DEBUG Proyectos - Imagen a guardar: " . $data['imagen_principal_proyecto']);
+        }
         
         if (ProyectoModel::create($data)) {
             $message = 'Proyecto creado correctamente';
@@ -108,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'slug_proyecto' => $_POST['slug_proyecto'] ?? '',
             'descripcion_corta_proyecto' => $_POST['descripcion_corta_proyecto'] ?? '',
             'descripcion_larga_proyecto' => $_POST['descripcion_larga_proyecto'] ?? '',
-            'imagen_proyecto' => $_POST['imagen_proyecto'] ?? '',
+            'imagen_principal_proyecto' => $_POST['imagen_principal_proyecto'] ?? $_POST['imagen_proyecto'] ?? '',
             'tipo_proyecto' => $_POST['tipo_proyecto'] ?? '',
             'cliente_proyecto' => $_POST['cliente_proyecto'] ?? '',
             'fecha_inicio_proyecto' => !empty($_POST['fecha_inicio_proyecto']) ? $_POST['fecha_inicio_proyecto'] : null,
@@ -121,6 +134,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'meta_descripcion_proyecto' => $_POST['meta_descripcion_proyecto'] ?? '',
             'meta_keywords_proyecto' => $_POST['meta_keywords_proyecto'] ?? '',
         ];
+        
+        // Debug temporal
+        if (DEBUG_MODE && !empty($data['imagen_principal_proyecto'])) {
+            error_log("DEBUG Proyectos UPDATE - Imagen a guardar: " . $data['imagen_principal_proyecto']);
+        }
         
         if (ProyectoModel::update($id, $data)) {
             $message = 'Proyecto actualizado correctamente';

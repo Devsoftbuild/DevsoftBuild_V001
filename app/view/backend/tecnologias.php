@@ -115,3 +115,4 @@ $content_file = BASE_PATH . '/app/view/backend/pages/tecnologias_content.php';
 include BASE_PATH . '/app/view/backend/includes/layout.php';
 ?>
 
+

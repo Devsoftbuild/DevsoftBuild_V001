@@ -17,11 +17,13 @@
 <section class="section">
     <div class="container">
         <div class="empty-state">
-            <i class="fas fa-blog"></i>
+            <div class="empty-state-icon">
+                <i class="fas fa-blog"></i>
+            </div>
             <h3>Blog en Construcción</h3>
             <p>Próximamente publicaremos artículos sobre desarrollo web, aplicaciones móviles, tecnología y mejores prácticas.</p>
-            <a href="<?php echo URL_SERV; ?>" class="btn btn-primary">
-                <i class="fas fa-arrow-left"></i> Volver al Inicio
+            <a href="<?php echo URL_SERV; ?>" class="btn btn-primary btn-lg btn-back-home">
+                <i class="fas fa-home"></i> <span>Volver al Inicio</span>
             </a>
         </div>
     </div>

@@ -20,3 +20,4 @@ $content_file = TEMPLATE_PATH . '/pages/cotizar_content.php';
 include TEMPLATE_PATH . '/includes/layout.php';
 ?>
 
+

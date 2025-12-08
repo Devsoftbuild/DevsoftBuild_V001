@@ -12,11 +12,16 @@
     RewriteCond %{REQUEST_URI} ^/devsoftbuild/dw-panel
     RewriteRule ^dw-panel/(.*)$ dw-panel/index.php [QSA,L]
     
+    # Permitir acceso a archivos públicos (uploads, imágenes, etc.)
+    RewriteCond %{REQUEST_URI} ^/devsoftbuild/app/public_root/
+    RewriteRule ^app/public_root/(.*)$ app/public_root/$1 [L]
+    
     # Frontend - Redirigir todo a index.php o run.php
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} !^/devsoftbuild/dw-panel
-    RewriteCond %{REQUEST_URI} !^/devsoftbuild/app/
+    RewriteCond %{REQUEST_URI} !^/devsoftbuild/app/public_root/
+    RewriteCond %{REQUEST_URI} !^/devsoftbuild/app/view/frontend/
     RewriteCond %{REQUEST_URI} !^/devsoftbuild/database/
     RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>

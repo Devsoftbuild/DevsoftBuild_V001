@@ -25,3 +25,4 @@ $content_file = TEMPLATE_PATH . '/pages/proyectos_content.php';
 include TEMPLATE_PATH . '/includes/layout.php';
 ?>
 
+

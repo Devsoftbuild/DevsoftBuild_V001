@@ -3,6 +3,9 @@
  * Contenido de la Página Cotizar
  * DevSoft Build SAC
  */
+
+// Mostrar mensajes flash
+$flash_message = getFlashMessage();
 ?>
 
 <!-- Hero Section -->
@@ -16,29 +19,35 @@
 <!-- Formulario de Cotización -->
 <section class="section">
     <div class="container">
+        <?php if ($flash_message): ?>
+            <div class="alert alert-<?php echo $flash_message['type']; ?>" style="margin-bottom: 2rem; padding: 1rem; border-radius: 8px; background: <?php echo $flash_message['type'] === 'success' ? '#d4edda' : '#f8d7da'; ?>; color: <?php echo $flash_message['type'] === 'success' ? '#155724' : '#721c24'; ?>; border: 1px solid <?php echo $flash_message['type'] === 'success' ? '#c3e6cb' : '#f5c6cb'; ?>;">
+                <?php echo htmlspecialchars($flash_message['message']); ?>
+            </div>
+        <?php endif; ?>
+        
         <div class="quote-form-wrapper">
-            <form action="<?php echo URL_SERV; ?>/cotizar" method="POST" class="quote-form">
+            <form action="<?php echo URL_SERV; ?>/cotizar" method="POST" class="quote-form" id="cotizarForm">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nombre">Nombre Completo *</label>
-                        <input type="text" id="nombre" name="nombre" required>
+                        <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre completo">
                     </div>
                     
                     <div class="form-group">
                         <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email" required placeholder="tu@email.com">
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="telefono">Teléfono</label>
-                        <input type="tel" id="telefono" name="telefono">
+                        <input type="tel" id="telefono" name="telefono" placeholder="+51 999 999 999">
                     </div>
                     
                     <div class="form-group">
                         <label for="empresa">Empresa</label>
-                        <input type="text" id="empresa" name="empresa">
+                        <input type="text" id="empresa" name="empresa" placeholder="Nombre de tu empresa">
                     </div>
                 </div>
                 
@@ -140,4 +149,3 @@
         </div>
     </div>
 </section>
-

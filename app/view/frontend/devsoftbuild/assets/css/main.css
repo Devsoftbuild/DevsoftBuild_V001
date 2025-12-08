@@ -852,11 +852,15 @@ a:hover {
 /* ============================================
    FORMS
    ============================================ */
-.contact-wrapper,
-.quote-form-wrapper {
+.contact-wrapper {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
     gap: var(--spacing-xl);
+}
+
+.quote-form-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .contact-info h2,
@@ -949,6 +953,16 @@ a:hover {
     box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
 }
 
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.form-group select option {
+    background: var(--color-primary-dark);
+    color: var(--color-white);
+}
+
 .form-group textarea {
     resize: vertical;
     min-height: 120px;
@@ -960,23 +974,103 @@ a:hover {
 .empty-state {
     text-align: center;
     padding: var(--spacing-xl) 0;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-.empty-state i {
-    font-size: 4rem;
+.empty-state-icon {
+    margin-bottom: var(--spacing-lg);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.empty-state-icon i {
+    font-size: 5rem;
     color: var(--color-accent);
-    margin-bottom: var(--spacing-md);
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
 }
 
 .empty-state h3 {
-    font-size: 1.5rem;
+    font-size: 2rem;
     color: var(--color-white);
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
 }
 
 .empty-state p {
     color: var(--color-gray-medium);
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    font-size: 1.125rem;
+    max-width: 600px;
+    line-height: 1.8;
+}
+
+.btn-back-home {
+    position: relative;
+    overflow: hidden;
+    padding: 1rem 2.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+}
+
+.btn-back-home::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-back-home:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-back-home i {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.btn-back-home:hover i {
+    transform: translateX(-5px);
+}
+
+.btn-back-home span,
+.btn-back-home {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 /* ============================================

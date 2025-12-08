@@ -107,7 +107,7 @@
                 
                 <div class="form-group full-width">
                     <label>O usar URL de Imagen</label>
-                    <input type="text" name="imagen_proyecto" id="imagen_proyecto_url" value="<?php echo htmlspecialchars($proyecto['imagen_proyecto'] ?? ''); ?>" placeholder="https://...">
+                    <input type="text" name="imagen_proyecto" id="imagen_proyecto_url" value="<?php echo htmlspecialchars($proyecto['imagen_principal_proyecto'] ?? $proyecto['imagen_proyecto'] ?? ''); ?>" placeholder="https://...">
                 </div>
             </div>
             
@@ -192,8 +192,10 @@
                             <tr>
                                 <td>#<?php echo $p['id_proyecto']; ?></td>
                                 <td>
-                                    <?php if (!empty($p['imagen_proyecto'])): ?>
-                                        <img src="<?php echo htmlspecialchars($p['imagen_proyecto']); ?>" alt="<?php echo htmlspecialchars($p['nombre_proyecto']); ?>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                                    <?php 
+                                    $imagen_proyecto = $p['imagen_principal_proyecto'] ?? $p['imagen_proyecto'] ?? '';
+                                    if (!empty($imagen_proyecto)): ?>
+                                        <img src="<?php echo htmlspecialchars($imagen_proyecto); ?>" alt="<?php echo htmlspecialchars($p['nombre_proyecto']); ?>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
                                     <?php else: ?>
                                         <span style="color: #BDC3C7;">Sin imagen</span>
                                     <?php endif; ?>
@@ -260,12 +262,14 @@ function previewImage(input) {
     }
 }
 
-<?php if (isset($proyecto) && !empty($proyecto['imagen_proyecto'])): ?>
+<?php 
+$imagen_actual = $proyecto['imagen_principal_proyecto'] ?? $proyecto['imagen_proyecto'] ?? '';
+if (isset($proyecto) && !empty($imagen_actual)): ?>
 document.addEventListener('DOMContentLoaded', function() {
     const preview = document.getElementById('imagePreview');
     const previewImg = document.getElementById('previewImg');
     if (preview && previewImg) {
-        previewImg.src = '<?php echo htmlspecialchars($proyecto['imagen_proyecto']); ?>';
+        previewImg.src = '<?php echo htmlspecialchars($imagen_actual); ?>';
         preview.style.display = 'block';
     }
 });
