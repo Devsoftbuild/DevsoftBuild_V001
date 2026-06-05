@@ -9,7 +9,7 @@ $current_page = 'tecnologias';
 require_once BASE_PATH . '/app/model/TecnologiaModel.php';
 
 $action = $_GET['action'] ?? 'list';
-$id = $_GET['id'] ?? null;
+$id = isset($_GET['id']) ? (int) $_GET['id'] : null;
 $message = '';
 $message_type = '';
 
@@ -24,6 +24,7 @@ if (!file_exists($upload_dir)) {
 
 // Procesar subida de imagen
 $imagen_subida = false;
+$bloquear_guardado_por_subida = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo_tecnologia_file']) && $_FILES['logo_tecnologia_file']['error'] === UPLOAD_ERR_OK) {
     $file = $_FILES['logo_tecnologia_file'];
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
@@ -40,10 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo_tecnologia_file
         } else {
             $message = 'Error al subir el logo';
             $message_type = 'error';
+            $bloquear_guardado_por_subida = true;
         }
     } else {
         $message = 'Formato de imagen no válido o archivo muy grande (máx 2MB)';
         $message_type = 'error';
+        $bloquear_guardado_por_subida = true;
     }
 }
 
@@ -57,16 +60,17 @@ if (!$imagen_subida && !empty($_POST['logo_tecnologia']) && filter_var($_POST['l
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$bloquear_guardado_por_subida) {
+    $post_id = isset($_POST['id']) ? (int) $_POST['id'] : null;
+
     if ($_POST['action'] === 'create') {
         $data = [
             'nombre_tecnologia' => $_POST['nombre_tecnologia'] ?? '',
             'categoria_tecnologia' => $_POST['categoria_tecnologia'] ?? '',
             'logo_tecnologia' => $_POST['logo_tecnologia'] ?? '',
             'descripcion_tecnologia' => $_POST['descripcion_tecnologia'] ?? '',
-            'url_tecnologia' => $_POST['url_tecnologia'] ?? null,
             'orden_tecnologia' => $_POST['orden_tecnologia'] ?? 0,
-            'estado_tecnologia' => isset($_POST['estado_tecnologia']) ? 1 : 0,
+            'estado_tecnologia' => (int) ($_POST['estado_tecnologia'] ?? 0),
         ];
         
         if (TecnologiaModel::create($data)) {
@@ -74,7 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message_type = 'success';
             $action = 'list';
         } else {
-            $message = 'Error al crear tecnología';
+            $detail = TecnologiaModel::getLastError();
+            $message = 'Error al crear tecnología' . ($detail && DEBUG_MODE ? ': ' . htmlspecialchars($detail) : '');
             $message_type = 'error';
         }
     } elseif ($_POST['action'] === 'update') {
@@ -83,21 +88,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'categoria_tecnologia' => $_POST['categoria_tecnologia'] ?? '',
             'logo_tecnologia' => $_POST['logo_tecnologia'] ?? '',
             'descripcion_tecnologia' => $_POST['descripcion_tecnologia'] ?? '',
-            'url_tecnologia' => $_POST['url_tecnologia'] ?? null,
             'orden_tecnologia' => $_POST['orden_tecnologia'] ?? 0,
-            'estado_tecnologia' => isset($_POST['estado_tecnologia']) ? 1 : 0,
+            'estado_tecnologia' => (int) ($_POST['estado_tecnologia'] ?? 0),
         ];
         
-        if (TecnologiaModel::update($id, $data)) {
+        if ($post_id && TecnologiaModel::update($post_id, $data)) {
             $message = 'Tecnología actualizada correctamente';
             $message_type = 'success';
             $action = 'list';
         } else {
-            $message = 'Error al actualizar tecnología';
+            $detail = TecnologiaModel::getLastError();
+            $message = 'Error al actualizar tecnología' . ($detail && DEBUG_MODE ? ': ' . htmlspecialchars($detail) : '');
             $message_type = 'error';
         }
     } elseif ($_POST['action'] === 'delete') {
-        if (TecnologiaModel::delete($id)) {
+        if ($post_id && TecnologiaModel::delete($post_id)) {
             $message = 'Tecnología eliminada correctamente';
             $message_type = 'success';
         }

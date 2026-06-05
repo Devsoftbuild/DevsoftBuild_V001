@@ -35,7 +35,7 @@
                 <div class="project-image">
                     <img src="<?php echo htmlspecialchars($proyecto['imagen_principal_proyecto']); ?>" alt="<?php echo htmlspecialchars($proyecto['nombre_proyecto']); ?>">
                     <div class="project-overlay">
-                        <a href="<?php echo URL_SERV; ?>/proyecto/<?php echo htmlspecialchars($proyecto['slug_proyecto']); ?>" class="btn btn-primary">
+                        <a href="<?php echo htmlspecialchars(proyecto_url_ficha($proyecto)); ?>" <?php echo proyecto_ficha_target_attrs($proyecto); ?> class="btn btn-primary">
                             Ver Detalles
                         </a>
                     </div>

@@ -88,11 +88,11 @@ $flash_message = getFlashMessage();
                         <label for="presupuesto">Presupuesto Estimado</label>
                         <select id="presupuesto" name="presupuesto">
                             <option value="">Selecciona un rango</option>
-                            <option value="menos-5000">Menos de $5,000</option>
-                            <option value="5000-10000">$5,000 - $10,000</option>
-                            <option value="10000-25000">$10,000 - $25,000</option>
-                            <option value="25000-50000">$25,000 - $50,000</option>
-                            <option value="mas-50000">Más de $50,000</option>
+                            <option value="menos-5000">Menos de S/. 5,000</option>
+                            <option value="5000-10000">S/. 5,000 - S/. 10,000</option>
+                            <option value="10000-25000">S/. 10,000 - S/. 25,000</option>
+                            <option value="25000-50000">S/. 25,000 - S/. 50,000</option>
+                            <option value="mas-50000">Más de S/. 50,000</option>
                         </select>
                     </div>
                     

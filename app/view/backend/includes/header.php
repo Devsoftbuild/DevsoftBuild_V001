@@ -29,6 +29,7 @@ $current_user = AuthModel::getCurrentUser();
     <?php endif; ?>
 </head>
 <body class="admin-body">
+    <div class="admin-sidebar-backdrop" id="adminSidebarBackdrop" aria-hidden="true"></div>
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-header">

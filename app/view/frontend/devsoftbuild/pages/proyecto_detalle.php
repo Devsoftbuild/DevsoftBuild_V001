@@ -114,7 +114,7 @@ if (!empty($otros_proyectos)):
                 <div class="project-image">
                     <img src="<?php echo htmlspecialchars($otro['imagen_principal_proyecto']); ?>" alt="<?php echo htmlspecialchars($otro['nombre_proyecto']); ?>">
                     <div class="project-overlay">
-                        <a href="<?php echo URL_SERV; ?>/proyecto/<?php echo htmlspecialchars($otro['slug_proyecto']); ?>" class="btn btn-primary">
+                        <a href="<?php echo htmlspecialchars(proyecto_url_ficha($otro)); ?>" <?php echo proyecto_ficha_target_attrs($otro); ?> class="btn btn-primary">
                             Ver Detalles
                         </a>
                     </div>

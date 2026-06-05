@@ -7,6 +7,36 @@
 require_once __DIR__ . '/Database.php';
 
 class ProyectoModel {
+
+    /**
+     * Evitar guardar URLs en slug_proyecto; rellena url_proyecto si falta y genera un slug válido.
+     *
+     * @param array<string, mixed> $data
+     */
+    private static function normalizeProyectoData(array &$data): void {
+        $slug = trim($data['slug_proyecto'] ?? '');
+        $nombre = (string) ($data['nombre_proyecto'] ?? '');
+        $url = isset($data['url_proyecto']) ? trim((string) $data['url_proyecto']) : '';
+
+        if ($slug !== '' && filter_var($slug, FILTER_VALIDATE_URL)) {
+            if ($url === '') {
+                $data['url_proyecto'] = $slug;
+                $url = $slug;
+            }
+            $host = parse_url($slug, PHP_URL_HOST);
+            if (!empty($host)) {
+                $host = preg_replace('/^www\./i', '', $host);
+                $slug = self::generateSlug(str_replace('.', '-', $host));
+            } else {
+                $slug = self::generateSlug($nombre);
+            }
+            $data['slug_proyecto'] = $slug !== '' ? $slug : self::generateSlug($nombre);
+        }
+        $slugFinal = trim($data['slug_proyecto'] ?? '');
+        if ($slugFinal === '') {
+            $data['slug_proyecto'] = self::generateSlug($nombre ?: 'proyecto');
+        }
+    }
     /**
      * Obtener todos los proyectos con filtros
      * @param array $filters
@@ -155,6 +185,7 @@ class ProyectoModel {
      * @return int|false
      */
     public static function create($data) {
+        self::normalizeProyectoData($data);
         try {
             $pdo = getDB();
             $sql = "INSERT INTO proyectos (
@@ -167,7 +198,7 @@ class ProyectoModel {
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 $data['nombre_proyecto'] ?? '',
-                $data['slug_proyecto'] ?? self::generateSlug($data['nombre_proyecto'] ?? ''),
+                $data['slug_proyecto'] ?? '',
                 $data['descripcion_corta_proyecto'] ?? null,
                 $data['descripcion_larga_proyecto'] ?? null,
                 $data['imagen_principal_proyecto'] ?? null,
@@ -199,6 +230,7 @@ class ProyectoModel {
      * @return bool
      */
     public static function update($id, $data) {
+        self::normalizeProyectoData($data);
         try {
             $pdo = getDB();
             $sql = "UPDATE proyectos SET 
@@ -211,7 +243,7 @@ class ProyectoModel {
             $stmt = $pdo->prepare($sql);
             return $stmt->execute([
                 $data['nombre_proyecto'] ?? '',
-                $data['slug_proyecto'] ?? self::generateSlug($data['nombre_proyecto'] ?? ''),
+                $data['slug_proyecto'] ?? '',
                 $data['descripcion_corta_proyecto'] ?? null,
                 $data['descripcion_larga_proyecto'] ?? null,
                 $data['imagen_principal_proyecto'] ?? null,

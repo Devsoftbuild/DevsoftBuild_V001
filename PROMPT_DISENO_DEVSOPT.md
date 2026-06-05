@@ -365,7 +365,7 @@
 - Diseño glassmorphism (opcional, sutil)
 - Neumorphism (opcional, sutil)
 
-**Elementos visuales:**
+**Elementos visuales:**![1778351452091](image/PROMPT_DISENO_DEVSOPT/1778351452091.png)
 - Gradientes sutiles (cyan a teal oscuro)
 - Partículas o efectos de fondo animados
 - Iconos modernos (Font Awesome, Heroicons)

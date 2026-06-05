@@ -191,7 +191,7 @@
                                 </td>
                                 <td>
                                     <?php if (!empty($s['precio_desde_servicio'])): ?>
-                                        <?php echo formatPrice($s['precio_desde_servicio']); ?>
+                                        <?php echo formatServicePrice($s['precio_desde_servicio']); ?>
                                     <?php else: ?>
                                         <span style="color: #BDC3C7;">-</span>
                                     <?php endif; ?>
@@ -212,7 +212,7 @@
                                 <td>
                                     <div class="action-buttons">
                                         <a href="<?php echo URL_SERV; ?>/dw-panel/servicios?action=edit&id=<?php echo $s['id_servicio']; ?>" class="btn-icon" title="Editar"><i class="fas fa-edit"></i></a>
-                                        <a href="<?php echo URL_SERV; ?>/servicio/<?php echo htmlspecialchars($s['slug_servicio']); ?>" target="_blank" class="btn-icon" title="Ver en sitio"><i class="fas fa-eye"></i></a>
+                                        <a href="<?php echo htmlspecialchars(servicio_url($s)); ?>" target="_blank" class="btn-icon" title="Ver en sitio"><i class="fas fa-eye"></i></a>
                                         <form method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar servicio?');">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="<?php echo $s['id_servicio']; ?>">

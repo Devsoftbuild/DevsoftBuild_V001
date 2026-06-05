@@ -9,7 +9,7 @@ $current_page = 'servicios';
 require_once BASE_PATH . '/app/model/ServicioModel.php';
 
 $action = $_GET['action'] ?? 'list';
-$id = $_GET['id'] ?? null;
+$id = isset($_GET['id']) ? (int) $_GET['id'] : null;
 $message = '';
 $message_type = '';
 
@@ -24,6 +24,7 @@ if (!file_exists($upload_dir)) {
 
 // Procesar subida de imagen
 $imagen_subida = false;
+$bloquear_guardado = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_servicio_file']) && $_FILES['imagen_servicio_file']['error'] === UPLOAD_ERR_OK) {
     $file = $_FILES['imagen_servicio_file'];
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -40,10 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_servicio_file
         } else {
             $message = 'Error al subir la imagen';
             $message_type = 'error';
+            $bloquear_guardado = true;
         }
     } else {
         $message = 'Formato de imagen no válido o archivo muy grande (máx 5MB)';
         $message_type = 'error';
+        $bloquear_guardado = true;
     }
 }
 
@@ -51,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_servicio_file
 if (!$imagen_subida && !empty($_POST['imagen_servicio']) && filter_var($_POST['imagen_servicio'], FILTER_VALIDATE_URL)) {
     // La URL ya está en $_POST['imagen_servicio'], no hacer nada
 } elseif (!$imagen_subida && empty($_POST['imagen_servicio'])) {
-    // Si estamos editando y no se subió nueva imagen ni hay URL, mantener la existente
     if (isset($servicio) && !empty($servicio['imagen_servicio'])) {
         $_POST['imagen_servicio'] = $servicio['imagen_servicio'];
     }
@@ -60,32 +62,32 @@ if (!$imagen_subida && !empty($_POST['imagen_servicio']) && filter_var($_POST['i
 // Generar slug si no existe
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['nombre_servicio'])) {
     if (empty($_POST['slug_servicio'])) {
-        $slug = strtolower(trim($_POST['nombre_servicio']));
-        $slug = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'n'], $slug);
-        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
-        $slug = trim($slug, '-');
-        $_POST['slug_servicio'] = $slug;
+        $_POST['slug_servicio'] = ServicioModel::generateSlug($_POST['nombre_servicio']);
+    } else {
+        $_POST['slug_servicio'] = ServicioModel::generateSlug($_POST['slug_servicio']);
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$bloquear_guardado) {
+    $post_id = isset($_POST['id']) ? (int) $_POST['id'] : null;
+
+    $data = [
+        'nombre_servicio' => $_POST['nombre_servicio'] ?? '',
+        'slug_servicio' => $_POST['slug_servicio'] ?? '',
+        'descripcion_corta_servicio' => $_POST['descripcion_corta_servicio'] ?? '',
+        'descripcion_larga_servicio' => $_POST['descripcion_larga_servicio'] ?? '',
+        'icono_servicio' => $_POST['icono_servicio'] ?? '',
+        'imagen_servicio' => $_POST['imagen_servicio'] ?? '',
+        'precio_desde_servicio' => ($_POST['precio_desde_servicio'] ?? '') !== '' ? (float) $_POST['precio_desde_servicio'] : null,
+        'orden_servicio' => (int) ($_POST['orden_servicio'] ?? 0),
+        'destacado_servicio' => (int) ($_POST['destacado_servicio'] ?? 0),
+        'estado_servicio' => (int) ($_POST['estado_servicio'] ?? 0),
+        'meta_titulo_servicio' => $_POST['meta_titulo_servicio'] ?? '',
+        'meta_descripcion_servicio' => $_POST['meta_descripcion_servicio'] ?? '',
+        'meta_keywords_servicio' => $_POST['meta_keywords_servicio'] ?? '',
+    ];
+
     if ($_POST['action'] === 'create') {
-        $data = [
-            'nombre_servicio' => $_POST['nombre_servicio'] ?? '',
-            'slug_servicio' => $_POST['slug_servicio'] ?? '',
-            'descripcion_corta_servicio' => $_POST['descripcion_corta_servicio'] ?? '',
-            'descripcion_larga_servicio' => $_POST['descripcion_larga_servicio'] ?? '',
-            'icono_servicio' => $_POST['icono_servicio'] ?? '',
-            'imagen_servicio' => $_POST['imagen_servicio'] ?? '',
-            'precio_desde_servicio' => !empty($_POST['precio_desde_servicio']) ? $_POST['precio_desde_servicio'] : null,
-            'orden_servicio' => $_POST['orden_servicio'] ?? 0,
-            'destacado_servicio' => isset($_POST['destacado_servicio']) ? 1 : 0,
-            'estado_servicio' => isset($_POST['estado_servicio']) ? 1 : 0,
-            'meta_titulo_servicio' => $_POST['meta_titulo_servicio'] ?? '',
-            'meta_descripcion_servicio' => $_POST['meta_descripcion_servicio'] ?? '',
-            'meta_keywords_servicio' => $_POST['meta_keywords_servicio'] ?? '',
-        ];
-        
         if (ServicioModel::create($data)) {
             $message = 'Servicio creado correctamente';
             $message_type = 'success';
@@ -95,23 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message_type = 'error';
         }
     } elseif ($_POST['action'] === 'update') {
-        $data = [
-            'nombre_servicio' => $_POST['nombre_servicio'] ?? '',
-            'slug_servicio' => $_POST['slug_servicio'] ?? '',
-            'descripcion_corta_servicio' => $_POST['descripcion_corta_servicio'] ?? '',
-            'descripcion_larga_servicio' => $_POST['descripcion_larga_servicio'] ?? '',
-            'icono_servicio' => $_POST['icono_servicio'] ?? '',
-            'imagen_servicio' => $_POST['imagen_servicio'] ?? '',
-            'precio_desde_servicio' => !empty($_POST['precio_desde_servicio']) ? $_POST['precio_desde_servicio'] : null,
-            'orden_servicio' => $_POST['orden_servicio'] ?? 0,
-            'destacado_servicio' => isset($_POST['destacado_servicio']) ? 1 : 0,
-            'estado_servicio' => isset($_POST['estado_servicio']) ? 1 : 0,
-            'meta_titulo_servicio' => $_POST['meta_titulo_servicio'] ?? '',
-            'meta_descripcion_servicio' => $_POST['meta_descripcion_servicio'] ?? '',
-            'meta_keywords_servicio' => $_POST['meta_keywords_servicio'] ?? '',
-        ];
-        
-        if (ServicioModel::update($id, $data)) {
+        if ($post_id && ServicioModel::update($post_id, $data)) {
             $message = 'Servicio actualizado correctamente';
             $message_type = 'success';
             $action = 'list';
@@ -120,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message_type = 'error';
         }
     } elseif ($_POST['action'] === 'delete') {
-        if (ServicioModel::delete($id)) {
+        if ($post_id && ServicioModel::delete($post_id)) {
             $message = 'Servicio eliminado correctamente';
             $message_type = 'success';
         }

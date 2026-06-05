@@ -106,44 +106,7 @@
 </section>
 <?php endif; ?>
 
-<!-- Tecnologías -->
-<?php if (!empty($tecnologias)): ?>
-<section class="section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Tecnologías que Dominamos</h2>
-            <p class="section-description">Utilizamos las mejores herramientas y frameworks del mercado</p>
-        </div>
-        <div class="technologies-grid">
-            <?php 
-            $categorias = ['frontend', 'backend', 'mobile', 'database', 'cloud'];
-            foreach ($categorias as $categoria): 
-                $tecs_categoria = array_filter($tecnologias, function($t) use ($categoria) {
-                    return $t['categoria_tecnologia'] === $categoria;
-                });
-                if (!empty($tecs_categoria)):
-            ?>
-            <div class="tech-category">
-                <h3 class="tech-category-title"><?php echo ucfirst($categoria); ?></h3>
-                <div class="tech-items">
-                    <?php foreach ($tecs_categoria as $tec): ?>
-                    <div class="tech-item">
-                        <?php if (!empty($tec['logo_tecnologia'])): ?>
-                        <img src="<?php echo htmlspecialchars($tec['logo_tecnologia']); ?>" alt="<?php echo htmlspecialchars($tec['nombre_tecnologia']); ?>" class="tech-logo">
-                        <?php endif; ?>
-                        <span><?php echo htmlspecialchars($tec['nombre_tecnologia']); ?></span>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <?php 
-                endif;
-            endforeach; 
-            ?>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
+<?php include TEMPLATE_PATH . '/includes/tecnologias_grid.php'; ?>
 
 <!-- CTA Section -->
 <section class="cta-section">
@@ -162,5 +125,3 @@
         </div>
     </div>
 </section>
-
-

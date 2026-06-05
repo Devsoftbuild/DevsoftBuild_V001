@@ -39,7 +39,7 @@
                 <?php if (!empty($servicio['precio_desde_servicio'])): ?>
                 <div class="service-detail-price">
                     <h3>Precio desde:</h3>
-                    <div class="price-amount"><?php echo formatPrice($servicio['precio_desde_servicio']); ?></div>
+                    <p class="price-amount"><?php echo formatServicePrice($servicio['precio_desde_servicio']); ?></p>
                 </div>
                 <?php endif; ?>
                 
@@ -83,7 +83,7 @@ if (!empty($otros_servicios)):
                 <?php if (!empty($otro['descripcion_corta_servicio'])): ?>
                 <p class="service-description"><?php echo htmlspecialchars($otro['descripcion_corta_servicio']); ?></p>
                 <?php endif; ?>
-                <a href="<?php echo URL_SERV; ?>/servicio/<?php echo htmlspecialchars($otro['slug_servicio']); ?>" class="service-link">
+                <a href="<?php echo htmlspecialchars(servicio_url($otro)); ?>" class="service-link">
                     Ver más <i class="fas fa-arrow-right"></i>
                 </a>
             </div>

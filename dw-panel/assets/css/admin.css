@@ -35,6 +35,25 @@ body.admin-body {
     overflow-x: hidden;
 }
 
+body.admin-body.admin-sidebar-open {
+    overflow: hidden;
+}
+
+.admin-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 26, 31, 0.55);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.admin-sidebar-backdrop.is-visible {
+    display: block;
+    opacity: 1;
+}
+
 /* ============================================
    SIDEBAR
    ============================================ */
@@ -818,6 +837,8 @@ body.admin-body {
 @media (max-width: 768px) {
     .admin-sidebar {
         transform: translateX(-100%);
+        width: min(300px, 88vw);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
     }
     
     .admin-sidebar.active {
@@ -830,6 +851,30 @@ body.admin-body {
     
     .admin-content {
         padding: 15px;
+    }
+    
+    .admin-header {
+        padding: 0 12px;
+        gap: 8px;
+    }
+    
+    .header-left {
+        gap: 10px;
+        min-width: 0;
+        flex: 1;
+    }
+    
+    .admin-header .page-title {
+        font-size: 1.1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+    }
+    
+    .header-right {
+        gap: 8px;
+        flex-shrink: 0;
     }
     
     .metrics-grid {
@@ -850,6 +895,64 @@ body.admin-body {
     
     .table-container {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .data-table {
+        min-width: 560px;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .page-header .header-actions {
+        flex-wrap: wrap;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .form-actions {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-link span {
+        display: none;
+    }
+    
+    .header-link {
+        padding: 8px 10px;
+    }
+    
+    .user-info span:not(.user-chevron) {
+        display: none;
+    }
+    
+    .user-info {
+        padding: 8px 12px;
+    }
+    
+    .metric-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .metric-info h3 {
+        font-size: 1.75rem;
     }
 }
 

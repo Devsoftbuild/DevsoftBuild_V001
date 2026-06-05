@@ -18,10 +18,22 @@ $telefono_contacto = ConfigModel::get('telefono_contacto', '');
 $direccion_contacto = ConfigModel::get('direccion_contacto', '');
 $horario_atencion = ConfigModel::get('horario_atencion', 'Lunes a Viernes: 9:00 AM - 6:00 PM');
 
-// Obtener redes sociales (si existe el modelo)
-$redes_sociales = [];
-if (class_exists('RedSocialModel')) {
-    $redes_sociales = RedSocialModel::getAll(['estado_red_social' => 1]);
+// Redes desde configuración (por clave: funciona aunque grupo_configuracion esté vacío en BD antigua)
+$redes_sociales_links = [
+    'facebook'  => ['icon' => 'fab fa-facebook-f', 'title' => 'Facebook'],
+    'instagram' => ['icon' => 'fab fa-instagram', 'title' => 'Instagram'],
+    'twitter'   => ['icon' => 'fab fa-twitter', 'title' => 'X (Twitter)'],
+    'linkedin'  => ['icon' => 'fab fa-linkedin-in', 'title' => 'LinkedIn'],
+    'youtube'   => ['icon' => 'fab fa-youtube', 'title' => 'YouTube'],
+    'github'    => ['icon' => 'fab fa-github', 'title' => 'GitHub'],
+];
+$hay_redes_footer = false;
+foreach ($redes_sociales_links as $clave => $meta) {
+    $u = trim((string) ConfigModel::get($clave, ''));
+    if ($u !== '') {
+        $hay_redes_footer = true;
+        break;
+    }
 }
 ?>
 <footer class="footer">
@@ -75,11 +87,17 @@ if (class_exists('RedSocialModel')) {
                 </ul>
                 
                 <!-- Redes Sociales -->
-                <?php if (!empty($redes_sociales)): ?>
+                <?php if ($hay_redes_footer): ?>
                 <div class="footer-social">
-                    <?php foreach ($redes_sociales as $red): ?>
-                    <a href="<?php echo htmlspecialchars($red['url_red_social']); ?>" target="_blank" rel="noopener" class="social-link" title="<?php echo htmlspecialchars($red['nombre_red_social']); ?>">
-                        <i class="<?php echo htmlspecialchars($red['icono_red_social'] ?? 'fab fa-facebook'); ?>"></i>
+                    <?php foreach ($redes_sociales_links as $clave => $meta): ?>
+                        <?php
+                        $url = trim((string) ConfigModel::get($clave, ''));
+                        if ($url === '') {
+                            continue;
+                        }
+                        ?>
+                    <a href="<?php echo htmlspecialchars($url); ?>" target="_blank" rel="noopener noreferrer" class="social-link" title="<?php echo htmlspecialchars($meta['title']); ?>">
+                        <i class="<?php echo htmlspecialchars($meta['icon']); ?>" aria-hidden="true"></i>
                     </a>
                     <?php endforeach; ?>
                 </div>

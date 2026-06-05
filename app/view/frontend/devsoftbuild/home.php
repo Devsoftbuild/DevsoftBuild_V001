@@ -5,7 +5,7 @@
  */
 
 // Configuración de la página
-$page_title = 'Inicio';
+$document_title = 'DevSoft Build';
 $page_description = 'Desarrollo de software, aplicaciones web y móviles. Soluciones tecnológicas innovadoras para tu negocio.';
 $current_page = 'home';
 

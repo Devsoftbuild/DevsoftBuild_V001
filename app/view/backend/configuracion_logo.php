@@ -29,7 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo_file']) && $_FI
         
         if (move_uploaded_file($file['tmp_name'], $filepath)) {
             $logo_url = URL_SERV . '/app/public_root/img/logo/' . $filename;
-            if (ConfigModel::set('logo_url', $logo_url)) {
+            if (ConfigModel::set('logo_url', $logo_url, 'texto', 'general')) {
+                ConfigModel::set('logo', $logo_url, 'texto', 'general');
                 $message = 'Logo subido correctamente';
                 $message_type = 'success';
             } else {
@@ -120,7 +121,8 @@ function previewLogo(input) {
 ';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_logo'])) {
-    if (ConfigModel::set('logo_url', '')) {
+    if (ConfigModel::set('logo_url', '', 'texto', 'general')) {
+        ConfigModel::set('logo', '', 'texto', 'general');
         $message = 'Logo eliminado correctamente';
         $message_type = 'success';
         $logo_actual = '';

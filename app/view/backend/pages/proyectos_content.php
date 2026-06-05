@@ -51,7 +51,7 @@
                     <label>Tipo de Proyecto</label>
                     <select name="tipo_proyecto">
                         <option value="web" <?php echo ($proyecto['tipo_proyecto'] ?? '') === 'web' ? 'selected' : ''; ?>>Web</option>
-                        <option value="app" <?php echo ($proyecto['tipo_proyecto'] ?? '') === 'app' ? 'selected' : ''; ?>>App Móvil</option>
+                        <option value="mobile" <?php echo ($proyecto['tipo_proyecto'] ?? '') === 'mobile' ? 'selected' : ''; ?>>App Móvil</option>
                         <option value="ecommerce" <?php echo ($proyecto['tipo_proyecto'] ?? '') === 'ecommerce' ? 'selected' : ''; ?>>E-commerce</option>
                         <option value="otro" <?php echo ($proyecto['tipo_proyecto'] ?? '') === 'otro' ? 'selected' : ''; ?>>Otro</option>
                     </select>
@@ -226,7 +226,7 @@
                                 <td>
                                     <div class="action-buttons">
                                         <a href="<?php echo URL_SERV; ?>/dw-panel/proyectos?action=edit&id=<?php echo $p['id_proyecto']; ?>" class="btn-icon" title="Editar"><i class="fas fa-edit"></i></a>
-                                        <a href="<?php echo URL_SERV; ?>/proyecto/<?php echo htmlspecialchars($p['slug_proyecto']); ?>" target="_blank" class="btn-icon" title="Ver en sitio"><i class="fas fa-eye"></i></a>
+                                        <a href="<?php echo htmlspecialchars(proyecto_url_ficha($p)); ?>" target="_blank" rel="noopener noreferrer" class="btn-icon" title="Ver en sitio"><i class="fas fa-eye"></i></a>
                                         <form method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar proyecto?');">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="<?php echo $p['id_proyecto']; ?>">

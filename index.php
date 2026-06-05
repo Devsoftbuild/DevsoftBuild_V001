@@ -7,27 +7,32 @@
 // Cargar core del sistema
 require_once __DIR__ . '/core.php';
 
-// Obtener la ruta solicitada
-$request_uri = $_SERVER['REQUEST_URI'];
-$script_name = $_SERVER['SCRIPT_NAME'];
-
-// Remover el directorio base de la URI
-$base_path = str_replace('\\', '/', dirname($script_name));
-$request_path = str_replace($base_path, '', $request_uri);
-
-// Limpiar la ruta
+// Obtener la ruta solicitada (compatible local /devsoftbuild y producción en raíz)
+$request_uri = $_SERVER['REQUEST_URI'] ?? '/';
+$request_path = parse_url($request_uri, PHP_URL_PATH) ?? '/';
+$script_dir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
+if ($script_dir === '/' || $script_dir === '\\' || $script_dir === '.') {
+    $script_dir = '';
+}
+if ($script_dir !== '' && strpos($request_path, $script_dir) === 0) {
+    $request_path = substr($request_path, strlen($script_dir));
+}
 $request_path = trim($request_path, '/');
-$request_path = parse_url($request_path, PHP_URL_PATH);
 
 // Si está vacío, es la raíz
 if (empty($request_path) || $request_path === '/') {
     $request_path = 'home';
 }
 
-// Dividir la ruta en segmentos
+// Dividir la ruta en segmentos (slug puede llevar slashes, p. ej. URL mal usada como slug)
 $segments = explode('/', $request_path);
 $page = $segments[0];
-$slug = isset($segments[1]) ? $segments[1] : null;
+$slug = null;
+if (($page === 'proyecto' || $page === 'servicio') && count($segments) > 1) {
+    $slug = rawurldecode(implode('/', array_slice($segments, 1)));
+} elseif (isset($segments[1])) {
+    $slug = rawurldecode($segments[1]);
+}
 
 // Rutas disponibles
 $routes = [
@@ -55,9 +60,9 @@ require_once BASE_PATH . '/app/model/CotizacionModel.php';
 
 // Manejar detalle de servicio por slug
 if ($page === 'servicio' && $slug) {
-    $servicio = ServicioModel::getBySlug($slug);
+    $servicio = ServicioModel::getBySlug($slug, true);
     
-    if ($servicio && $servicio['estado_servicio'] == 1) {
+    if ($servicio) {
         $page_title = $servicio['meta_titulo_servicio'] ?? $servicio['nombre_servicio'] . ' - ' . APP_NAME;
         $page_description = $servicio['meta_descripcion_servicio'] ?? truncateText($servicio['descripcion_corta_servicio'] ?? '', 160);
         $current_page = 'servicios';

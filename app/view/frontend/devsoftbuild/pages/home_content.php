@@ -103,7 +103,7 @@
                 <?php if (!empty($servicio['descripcion_corta_servicio'])): ?>
                 <p class="service-description"><?php echo htmlspecialchars($servicio['descripcion_corta_servicio']); ?></p>
                 <?php endif; ?>
-                <a href="<?php echo URL_SERV; ?>/servicio/<?php echo htmlspecialchars($servicio['slug_servicio']); ?>" class="service-link">
+                <a href="<?php echo htmlspecialchars(servicio_url($servicio)); ?>" class="service-link">
                     Ver más <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -159,7 +159,7 @@
                 <div class="project-image">
                     <img src="<?php echo htmlspecialchars($proyecto['imagen_principal_proyecto']); ?>" alt="<?php echo htmlspecialchars($proyecto['nombre_proyecto']); ?>">
                     <div class="project-overlay">
-                        <a href="<?php echo URL_SERV; ?>/proyecto/<?php echo htmlspecialchars($proyecto['slug_proyecto']); ?>" class="btn btn-primary">
+                        <a href="<?php echo htmlspecialchars(proyecto_url_ficha($proyecto)); ?>" <?php echo proyecto_ficha_target_attrs($proyecto); ?> class="btn btn-primary">
                             Ver Detalles
                         </a>
                     </div>
@@ -181,6 +181,11 @@
     </div>
 </section>
 <?php endif; ?>
+
+<?php
+$tecnologias_section_class = 'section-dark';
+include TEMPLATE_PATH . '/includes/tecnologias_grid.php';
+?>
 
 <!-- Testimonios -->
 <?php if (!empty($testimonios)): ?>

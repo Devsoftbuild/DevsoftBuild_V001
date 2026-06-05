@@ -60,9 +60,10 @@ class ConfigModel {
      * @param string $clave
      * @param mixed $valor
      * @param string $tipo
+     * @param string|null $grupo Valor de grupo_configuracion (requerido para que getByGroup() encuentre la fila)
      * @return bool
      */
-    public static function set($clave, $valor, $tipo = 'texto') {
+    public static function set($clave, $valor, $tipo = 'texto', $grupo = null) {
         try {
             $pdo = getDB();
             
@@ -73,13 +74,21 @@ class ConfigModel {
                 $valor = $valor ? '1' : '0';
             }
             
-            $stmt = $pdo->prepare("
-                INSERT INTO configuraciones (clave_configuracion, valor_configuracion, tipo_configuracion) 
-                VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE valor_configuracion = ?, tipo_configuracion = ?
-            ");
-            
-            $result = $stmt->execute([$clave, $valor, $tipo, $valor, $tipo]);
+            if ($grupo !== null && $grupo !== '') {
+                $stmt = $pdo->prepare("
+                    INSERT INTO configuraciones (clave_configuracion, valor_configuracion, tipo_configuracion, grupo_configuracion)
+                    VALUES (?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE valor_configuracion = ?, tipo_configuracion = ?, grupo_configuracion = ?
+                ");
+                $result = $stmt->execute([$clave, $valor, $tipo, $grupo, $valor, $tipo, $grupo]);
+            } else {
+                $stmt = $pdo->prepare("
+                    INSERT INTO configuraciones (clave_configuracion, valor_configuracion, tipo_configuracion)
+                    VALUES (?, ?, ?)
+                    ON DUPLICATE KEY UPDATE valor_configuracion = ?, tipo_configuracion = ?
+                ");
+                $result = $stmt->execute([$clave, $valor, $tipo, $valor, $tipo]);
+            }
             
             // Limpiar cache
             if (isset(self::$cache[$clave])) {
@@ -136,6 +145,67 @@ class ConfigModel {
         }
     }
     
+    /**
+     * Asigna grupo_configuracion a claves conocidas que quedaron en NULL (guardados antes de guardar el grupo).
+     */
+    public static function repairGruposConocidos() {
+        $map = [
+            'nombre_empresa' => 'general',
+            'logo' => 'general',
+            'telefono' => 'general',
+            'email' => 'general',
+            'direccion' => 'general',
+            'ciudad' => 'general',
+            'pais' => 'general',
+            'logo_url' => 'general',
+            'email_contacto' => 'contacto',
+            'telefono_contacto' => 'contacto',
+            'whatsapp' => 'contacto',
+            'facebook' => 'redes_sociales',
+            'instagram' => 'redes_sociales',
+            'twitter' => 'redes_sociales',
+            'linkedin' => 'redes_sociales',
+            'youtube' => 'redes_sociales',
+            'github' => 'redes_sociales',
+            'meta_titulo_default' => 'seo',
+            'meta_descripcion_default' => 'seo',
+            'meta_keywords_default' => 'seo',
+        ];
+        try {
+            $pdo = getDB();
+            $sql = "UPDATE configuraciones SET grupo_configuracion = ? WHERE clave_configuracion = ? AND (grupo_configuracion IS NULL OR grupo_configuracion = '')";
+            $stmt = $pdo->prepare($sql);
+            foreach ($map as $clave => $grupo) {
+                $stmt->execute([$grupo, $clave]);
+            }
+            self::clearCache();
+        } catch (PDOException $e) {
+            if (DEBUG_MODE) {
+                error_log('repairGruposConocidos: ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Fuerza tipo "texto" en claves del formulario de configuración (corrige whatsapp/tel guardados como numero).
+     */
+    public static function normalizarTiposTextoFormulario() {
+        try {
+            $pdo = getDB();
+            $pdo->exec("UPDATE configuraciones SET tipo_configuracion = 'texto' WHERE clave_configuracion IN (
+                'whatsapp','telefono_contacto','telefono','email','email_contacto',
+                'facebook','instagram','twitter','linkedin','youtube','github',
+                'logo','logo_url','direccion','ciudad','pais','nombre_empresa',
+                'meta_titulo_default','meta_descripcion_default','meta_keywords_default'
+            )");
+            self::clearCache();
+        } catch (PDOException $e) {
+            if (DEBUG_MODE) {
+                error_log('normalizarTiposTextoFormulario: ' . $e->getMessage());
+            }
+        }
+    }
+
     /**
      * Limpiar cache de configuración
      */

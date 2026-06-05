@@ -10,11 +10,38 @@ document.addEventListener('DOMContentLoaded', function() {
     const navbarMenu = document.getElementById('navbarMenu');
     
     if (mobileMenuToggle && navbarMenu) {
-        mobileMenuToggle.addEventListener('click', function() {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
             navbarMenu.classList.toggle('active');
             this.classList.toggle('active');
+            document.body.classList.toggle('nav-menu-open', navbarMenu.classList.contains('active'));
         });
     }
+
+    document.addEventListener('click', function(e) {
+        if (!navbarMenu || !navbarMenu.classList.contains('active')) return;
+        if (navbarMenu.contains(e.target) || (mobileMenuToggle && mobileMenuToggle.contains(e.target))) return;
+        navbarMenu.classList.remove('active');
+        if (mobileMenuToggle) mobileMenuToggle.classList.remove('active');
+        document.body.classList.remove('nav-menu-open');
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Escape') return;
+        if (navbarMenu && navbarMenu.classList.contains('active')) {
+            navbarMenu.classList.remove('active');
+            if (mobileMenuToggle) mobileMenuToggle.classList.remove('active');
+            document.body.classList.remove('nav-menu-open');
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && navbarMenu) {
+            navbarMenu.classList.remove('active');
+            if (mobileMenuToggle) mobileMenuToggle.classList.remove('active');
+            document.body.classList.remove('nav-menu-open');
+        }
+    });
     
     // Navbar scroll effect
     const navbar = document.getElementById('navbar');
@@ -103,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (mobileMenuToggle) {
                 mobileMenuToggle.classList.remove('active');
             }
+            document.body.classList.remove('nav-menu-open');
         });
     });
     

@@ -14,13 +14,13 @@
 </section>
 
 <!-- Servicios Grid -->
-<section class="section">
+<section class="section section-services-list">
     <div class="container">
         <?php if (!empty($servicios)): ?>
-        <div class="services-grid">
+        <div class="services-grid services-grid--listing">
             <?php foreach ($servicios as $servicio): ?>
-            <div class="service-card">
-                <?php if (!empty($servicio['icono_servicio'])): ?>
+            <div class="service-card service-card--compact">
+                <?php if (empty($servicio['imagen_servicio']) && !empty($servicio['icono_servicio'])): ?>
                 <div class="service-icon">
                     <i class="<?php echo htmlspecialchars($servicio['icono_servicio']); ?>"></i>
                 </div>
@@ -40,11 +40,11 @@
                 
                 <?php if (!empty($servicio['precio_desde_servicio'])): ?>
                 <div class="service-price">
-                    Desde <?php echo formatPrice($servicio['precio_desde_servicio']); ?>
+                    Desde <?php echo formatServicePrice($servicio['precio_desde_servicio']); ?>
                 </div>
                 <?php endif; ?>
                 
-                <a href="<?php echo URL_SERV; ?>/servicio/<?php echo htmlspecialchars($servicio['slug_servicio']); ?>" class="btn btn-primary">
+                <a href="<?php echo htmlspecialchars(servicio_url($servicio)); ?>" class="btn btn-primary btn-sm">
                     Ver Detalles <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -52,7 +52,7 @@
         </div>
         <?php else: ?>
         <div class="empty-state">
-            <i class="fas fa-box-open"></i>
+            <div class="empty-state-icon"><i class="fas fa-box-open"></i></div>
             <h3>No hay servicios disponibles</h3>
             <p>Próximamente agregaremos nuestros servicios.</p>
         </div>

@@ -45,11 +45,6 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>URL</label>
-                    <input type="url" name="url_tecnologia" value="<?php echo htmlspecialchars($tecnologia['url_tecnologia'] ?? ''); ?>" placeholder="https://...">
-                </div>
-                
-                <div class="form-group">
                     <label>Orden</label>
                     <input type="number" name="orden_tecnologia" value="<?php echo $tecnologia['orden_tecnologia'] ?? 0; ?>">
                 </div>

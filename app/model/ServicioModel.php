@@ -34,6 +34,11 @@ class ServicioModel {
                 $params[] = $search;
                 $params[] = $search;
             }
+
+            if (!empty($filters['exclude_id'])) {
+                $sql .= ' AND id_servicio <> ?';
+                $params[] = (int) $filters['exclude_id'];
+            }
             
             $sql .= " ORDER BY orden_servicio ASC, nombre_servicio ASC";
             $stmt = $pdo->prepare($sql);
@@ -67,14 +72,24 @@ class ServicioModel {
      * @param string $slug
      * @return array|false
      */
-    public static function getBySlug($slug) {
+    public static function getBySlug($slug, $onlyActive = true) {
+        $slug = trim(rawurldecode((string) $slug), " \t\n\r\0\x0B/");
+        if ($slug === '') {
+            return false;
+        }
         try {
             $pdo = getDB();
-            $stmt = $pdo->prepare("SELECT * FROM servicios WHERE slug_servicio = ? AND estado_servicio = 1");
+            $sql = 'SELECT * FROM servicios WHERE LOWER(slug_servicio) = LOWER(?)';
+            if ($onlyActive) {
+                $sql .= ' AND estado_servicio = 1';
+            }
+            $stmt = $pdo->prepare($sql);
             $stmt->execute([$slug]);
             return $stmt->fetch();
         } catch (PDOException $e) {
-            if (DEBUG_MODE) error_log("Error en ServicioModel::getBySlug: " . $e->getMessage());
+            if (DEBUG_MODE) {
+                error_log('Error en ServicioModel::getBySlug: ' . $e->getMessage());
+            }
             return false;
         }
     }
@@ -102,6 +117,19 @@ class ServicioModel {
     }
     
     /**
+     * Slug único para insert/update.
+     */
+    private static function resolveSlug(array $data, $excludeId = null) {
+        $pdo = getDB();
+        $raw = trim((string) ($data['slug_servicio'] ?? ''));
+        $base = $raw !== '' ? self::generateSlug($raw) : self::generateSlug($data['nombre_servicio'] ?? '');
+        if ($base === '') {
+            $base = 'servicio';
+        }
+        return self::uniqueSlug($pdo, $base, $excludeId);
+    }
+
+    /**
      * Crear nuevo servicio
      * @param array $data
      * @return int|false ID del servicio creado o false
@@ -119,7 +147,7 @@ class ServicioModel {
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 $data['nombre_servicio'] ?? '',
-                $data['slug_servicio'] ?? self::generateSlug($data['nombre_servicio'] ?? ''),
+                self::resolveSlug($data),
                 $data['descripcion_corta_servicio'] ?? null,
                 $data['descripcion_larga_servicio'] ?? null,
                 $data['icono_servicio'] ?? null,
@@ -160,15 +188,15 @@ class ServicioModel {
             $stmt = $pdo->prepare($sql);
             return $stmt->execute([
                 $data['nombre_servicio'] ?? '',
-                $data['slug_servicio'] ?? self::generateSlug($data['nombre_servicio'] ?? ''),
+                self::resolveSlug($data, (int) $id),
                 $data['descripcion_corta_servicio'] ?? null,
                 $data['descripcion_larga_servicio'] ?? null,
                 $data['icono_servicio'] ?? null,
                 $data['imagen_servicio'] ?? null,
                 $data['precio_desde_servicio'] ?? null,
                 $data['orden_servicio'] ?? 0,
-                $data['destacado_servicio'] ?? 0,
-                $data['estado_servicio'] ?? 1,
+                !empty($data['destacado_servicio']) ? 1 : 0,
+                !empty($data['estado_servicio']) ? 1 : 0,
                 $data['meta_titulo_servicio'] ?? null,
                 $data['meta_descripcion_servicio'] ?? null,
                 $data['meta_keywords_servicio'] ?? null,
@@ -202,19 +230,30 @@ class ServicioModel {
      * @param string $text
      * @return string
      */
-    private static function generateSlug($text) {
-        // Convertir a minúsculas
-        $text = mb_strtolower($text, 'UTF-8');
-        
-        // Reemplazar caracteres especiales
-        $text = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'n'], $text);
-        
-        // Reemplazar espacios y caracteres especiales por guiones
+    public static function generateSlug($text) {
+        $text = mb_strtolower(trim((string) $text), 'UTF-8');
+        $text = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü'], ['a', 'e', 'i', 'o', 'u', 'n', 'u'], $text);
         $text = preg_replace('/[^a-z0-9]+/', '-', $text);
-        
-        // Eliminar guiones al inicio y final
-        $text = trim($text, '-');
-        
-        return $text;
+        return trim($text, '-');
+    }
+
+    private static function uniqueSlug(PDO $pdo, $baseSlug, $excludeId = null) {
+        $slug = $baseSlug !== '' ? $baseSlug : 'servicio';
+        $n = 0;
+        while (true) {
+            $sql = 'SELECT id_servicio FROM servicios WHERE slug_servicio = ?';
+            $params = [$slug];
+            if ($excludeId !== null) {
+                $sql .= ' AND id_servicio <> ?';
+                $params[] = (int) $excludeId;
+            }
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            if (!$stmt->fetch()) {
+                return $slug;
+            }
+            $n++;
+            $slug = mb_substr($baseSlug, 0, 200) . '-' . $n;
+        }
     }
 }
